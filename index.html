@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Catch a Mole</title>
+  </head>
+  <body>
+    <div class="px-64 pt-64">
+
+      <h1 class="text-center font-bold text-2xl my-3">Catch a Mole!</h1>
+
+      <div class="flex w-full justify-center gap-4">
+        <div class="hole hover:cursor-pointer w-16 h-16 bg-black border-gray-500 border-4 rounded-full"></div>
+        <div class="hole hover:cursor-pointer w-16 h-16 bg-black border-gray-500 border-4 rounded-full"></div>
+        <div class="hole hover:cursor-pointer w-16 h-16 bg-black border-gray-500 border-4 rounded-full"></div>
+      </div>
+
+      <div id="gameStats" class="text-center mt-3 hidden">
+        <p id="winAlert" class="text-green-500 hidden">You win!</p>
+        <p>Clicks: <span id="clickCount">4</span></p>
+        <p>Elapsed Time: <span id="elapsedTime">4</span> seconds</p>
+      </div>
+
+      <div class="flex justify-center">
+        <button
+                id="startBtn"
+                class="bg-pink-500 text-white px-3 py-2 rounded-lg mt-3"
+        >
+          Start
+        </button>
+      </div>
+
+    </div>
+
+    <script>
+      let startTime, elapsedTime;
+      let clickCounter = 0;
+      let gaming = false
+      let gameLoop;
+      let debounceFlag = false
+
+      const startBtn = document.getElementById('startBtn')
+      const gameStats = document.getElementById('gameStats')
+      const holes = [...document.getElementsByClassName('hole')]
+      const mole = document.createElement('img')
+      const clicksTxt = document.getElementById('clickCount')
+      const elapsedTimeTxt = document.getElementById('elapsedTime')
+      const winAlert = document.getElementById('winAlert')
+
+      mole.src = 'https://metapals.github.io/frontend-interview-test-lite/assets/mole.60ea17ce.png';
+      mole.classList.add('hover:cursor-pointer', 'z-10')
+
+      holes.forEach(h => {
+        h.addEventListener('click', function (){
+          if(h.children.length < 1 && gaming){
+            //add click count
+            addClickCounter()
+
+            //TODO debounce
+            debounceFlag = true
+            setDebounceFlagFalse()
+          }
+        })
+      })
+      mole.addEventListener("click", function () {
+        if(gaming) winGame()
+        else alert('You already catch the mole, restart the game!')
+      })
+
+      startBtn.addEventListener("click", function () {
+        gaming = true
+
+        //show game stats
+        gameStats.classList.remove('hidden')
+
+        //reset game stats
+        resetElapsedTime()
+        resetClickCounter()
+
+        //start mole loop
+        startGame()
+
+        //disable start button
+        toggleStartBtn()
+      })
+
+      function startGame(){
+        //loop
+        //randomize mole location
+        //hides 200 - 400ms each loop
+        //debounce --> pause mole loop in debounce
+
+        gameLoop = setInterval(()=>{
+          //pick random hole
+          const i = Math.floor(Math.random()*holes.length)
+          let hole = holes[i]
+
+         if(!debounceFlag){
+           //show mole
+           hole.append(mole)
+           //hide mole after 200ms
+           setTimeout(()=>{hole.removeChild(mole)}, 200)
+         }
+
+        }, Math.floor(Math.random()*200)+400) //200 - 400ms + 200ms show time
+
+
+      }
+
+      function winGame(){
+        gaming = false
+        //stop game loop
+        clearInterval(gameLoop)
+        //show win text
+        winAlert.classList.toggle('hidden')
+        //show win alert
+        alert(`Gotcha! time to catch ${elapsedTimeTxt.innerText} seconds and ${clickCounter} clicks`)
+        //stop elapsed time
+        clearInterval(elapsedTime)
+        //toggle start button
+        toggleStartBtn()
+      }
+
+
+      function toggleStartBtn (){
+        startBtn.classList.toggle('bg-pink-500',)
+        startBtn.classList.toggle('bg-gray-200')
+        startBtn.classList.toggle('text-white')
+        startBtn.classList.toggle('text-gray-500')
+        startBtn.classList.toggle('cursor-not-allowed')
+      }
+
+      function resetElapsedTime (){
+        startTime = new Date();
+
+        elapsedTime = setInterval(()=>{
+          let currentTime = new Date()
+          let timeDiff = (currentTime - startTime)/1000
+          elapsedTimeTxt.innerText = `${Math.round(timeDiff)}`
+        })
+      }
+
+      function resetClickCounter(){
+        clickCounter = 0;
+        clicksTxt.innerText = clickCounter
+      }
+
+      function addClickCounter(){
+        clickCounter += 1;
+        clicksTxt.innerText = clickCounter
+      }
+
+      function debounce(func, delay){
+        let debounceTimer
+        return function() {
+          const context = this
+          const args = arguments
+          clearTimeout(debounceTimer)
+          debounceTimer
+                  = setTimeout(() => func.apply(context, args), delay)
+        }
+      }
+
+      const setDebounceFlagFalse = debounce(function(){
+        debounceFlag = false
+      }, 300)
+
+
+    </script>
+  </body>
+</html>
+
+DONE
