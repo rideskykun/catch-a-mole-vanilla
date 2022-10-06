@@ -1,10 +1,11 @@
 # catch-a-mole-vanilla
 
-#made using
+# made using
 - vanilla javascript
 - Vite 
 - TailwindCSS
 
-#run following commands in local
+# run following commands in local
 npm install
+
 npm run dev
